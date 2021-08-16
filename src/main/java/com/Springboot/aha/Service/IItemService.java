@@ -14,4 +14,5 @@ public interface IItemService {
     List<ItemDTO> findAll();
 
     ItemDTO findById(int id);
+    List<ItemDTO> findByAccount(int id);
 }

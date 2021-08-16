@@ -66,5 +66,15 @@ public class ItemService implements IItemService {
         return itemConverter.toItemDTO(entity);
     }
 
+    @Override
+    public List<ItemDTO> findByAccount(int id) {
+       List result = new ArrayList();
+      List<ITemEntity> entity= itemRepository.findByAccount(id);
+       for(ITemEntity e : entity){
+           result.add(itemConverter.toItemDTO(e));
+       }
+       return result;
+    }
+
 
 }
