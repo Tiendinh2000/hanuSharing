@@ -1,6 +1,8 @@
 package com.Springboot.aha.Entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +22,12 @@ public class AccountEntity {
     private String password;
 
     @OneToMany(mappedBy = "account")
-    private List<ITemEntity> itemList = new ArrayList<ITemEntity>();
+    @JsonIgnoreProperties(value = "account")
+    private List<ITemEntity> itemList ;
 
+    public void setAccount_id(int account_id) {
+        this.account_id = account_id;
+    }
 
     public int getAccount_id() {
         return account_id;

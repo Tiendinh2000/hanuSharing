@@ -1,7 +1,5 @@
 package com.Springboot.aha.Service.impl;
 
-import com.Springboot.aha.Converter.AccountConverter;
-import com.Springboot.aha.DTO.AccountDTO;
 import com.Springboot.aha.Entity.AccountEntity;
 import com.Springboot.aha.Repository.IAccountRepository;
 import com.Springboot.aha.Service.IAccountService;
@@ -17,39 +15,42 @@ public class AccountService implements IAccountService {
     @Autowired
     private IAccountRepository accountRepository;
 
-    @Autowired
-    private AccountConverter accountConverter;
 
     @Override
-    public AccountDTO save(AccountDTO accountDTO) {
-        AccountEntity entity = accountConverter.toEntity(accountDTO);
-        accountRepository.save(entity);
-        return accountConverter.toDTO(entity);
+    public AccountEntity save(AccountEntity item) {
+        return accountRepository.save(item);
     }
 
     @Override
-    public AccountDTO update(AccountDTO item) {
-        return null;
+    public AccountEntity update(AccountEntity newAccount) {
+
+        if(accountRepository.existsById(newAccount.getAccount_id())){
+            AccountEntity old = accountRepository.findById(newAccount.getAccount_id()).get();
+            if(newAccount.getUserName()!=null)
+                old.setUserName(newAccount.getUserName());
+            if(newAccount.getPassword()!=null)
+                old.setPassword(newAccount.getPassword());
+            if(newAccount.getItemList()!=null)
+                old.setItemList(newAccount.getItemList());
+          return  accountRepository.save(old);
+        }
+        else
+           return null;
     }
 
     @Override
     public int delete(int id) {
-        return 0;
+       try {
+           AccountEntity entity = accountRepository.findById(id).get();
+           accountRepository.delete(entity);
+           return id;
+       }catch (Exception e){
+       return -1;}
     }
 
     @Override
-    public List<AccountDTO> findAll() {
-        List<AccountEntity> list = accountRepository.findAll();
-        List<AccountDTO> result = new ArrayList<>();
-        for (AccountEntity entity : list) {
-           result.add(accountConverter.toDTO(entity));
-        }
-        return result;
-    }
-
-    @Override
-    public AccountDTO findById(int id) {
-        return null;
+    public List<AccountEntity> findAll() {
+        return accountRepository.findAll();
     }
 
 

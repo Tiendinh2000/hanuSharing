@@ -1,5 +1,7 @@
 package com.Springboot.aha.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
 
 @Entity
@@ -17,13 +19,17 @@ public class ITemEntity {
     private int price;
 
     @ManyToOne
-    @JoinColumn(name = "account_id")
+    @JoinColumn(name = "account_id", foreignKey = @ForeignKey(name = "fk_account"))
+    @JsonIgnoreProperties(value = "itemList")
     private AccountEntity account;
+
+    public void setItem_id(int item_id) {
+        this.item_id = item_id;
+    }
 
     public int getItem_id() {
         return item_id;
     }
-
 
     public String getName() {
         return name;

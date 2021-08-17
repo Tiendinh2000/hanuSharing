@@ -1,6 +1,5 @@
 package com.Springboot.aha.Service;
 
-import com.Springboot.aha.DTO.ItemDTO;
 import com.Springboot.aha.Entity.ITemEntity;
 import org.springframework.stereotype.Service;
 
@@ -8,11 +7,11 @@ import java.util.List;
 
 @Service
 public interface IItemService {
-    ItemDTO save(ItemDTO item);
-    ItemDTO update(ItemDTO item);
+    ITemEntity save(ITemEntity item);
+    ITemEntity update(ITemEntity item);
     int delete(int id);
-    List<ItemDTO> findAll();
+    List<ITemEntity> findAll();
+    List<ITemEntity> findByAccount(int id);
 
-    ItemDTO findById(int id);
-    List<ItemDTO> findByAccount(int id);
+
 }
