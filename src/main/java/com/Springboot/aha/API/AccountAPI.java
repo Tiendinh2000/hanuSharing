@@ -13,7 +13,7 @@ import java.util.List;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/account/")
 public class AccountAPI {
 
     @Autowired
@@ -22,18 +22,18 @@ public class AccountAPI {
     @Autowired
     private AccountService accountService;
 
-    @GetMapping(value = "/account")
+    @GetMapping(value = "/get")
     public ResponseEntity<List<AccountEntity>> getAccount() {
         List accountList = accountService.findAll();
         return ResponseEntity.ok(accountList);
     }
 
-    @PostMapping(value = "/account")
+    @PostMapping(value = "/add")
     public AccountEntity insert(@RequestBody AccountEntity model) {
         return accountService.save(model);
     }
 
-    @PutMapping(value = "/account/{id}")
+    @PutMapping(value = "/edit/{id}")
     public ResponseEntity<AccountEntity> update(@RequestBody AccountEntity model, @PathVariable("id") int id) {
         try {
             model.setAccount_id(id);
@@ -46,7 +46,7 @@ public class AccountAPI {
 
     }
 
-    @DeleteMapping(value = "/account")
+    @DeleteMapping(value = "/delete")
     public ResponseEntity<Integer> delete(@RequestParam("id") int ids) {
 
         int id = accountService.delete(ids);
