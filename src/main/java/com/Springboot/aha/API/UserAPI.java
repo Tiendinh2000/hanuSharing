@@ -36,7 +36,7 @@ public class UserAPI {
 
     @GetMapping(value = "/get")
     public ResponseEntity<List<User>> getAccount() {
-        List accountList = accountService.findAll();
+       List<User> accountList = accountService.findAll();
         return ResponseEntity.ok(accountList);
     }
 
