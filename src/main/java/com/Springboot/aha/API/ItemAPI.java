@@ -1,10 +1,23 @@
 package com.Springboot.aha.API;
 
-import com.Springboot.aha.Entity.ITemEntity;
+import com.Springboot.aha.Entity.Category;
+import com.Springboot.aha.Entity.Item;
+import com.Springboot.aha.Security.JwtUtils;
 import com.Springboot.aha.Service.IItemService;
+import com.Springboot.aha.Service.IUserService;
+import com.Springboot.aha.dto.MessageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @CrossOrigin
 @RestController
@@ -14,30 +27,62 @@ public class ItemAPI {
     @Autowired
     private IItemService itemService;
 
+    @Autowired
+    private IUserService userService;
 
-    @PostMapping(value = "/add")
-    public ITemEntity createItem(@RequestBody ITemEntity model) {
-        return itemService.save(model);
+    @Autowired
+    private JwtUtils jwtUtils;
+
+    /* Get token from resquest for authentication */
+    private String getAuthToken(HttpServletRequest request) {
+        String authorizationHeader = request.getHeader(AUTHORIZATION);
+        return authorizationHeader.substring(JwtUtils.Bearer.length());
     }
 
-    @GetMapping( "/get")
-    public List<ITemEntity> getItems() {
-        return  itemService.findAll();
+    @PostMapping(value = "/add")
+    public ResponseEntity<?> createItem(HttpServletRequest request, @Valid @RequestBody Item model, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            String errors = bindingResult.getAllErrors().stream().map(e -> e.getDefaultMessage()).collect(Collectors.joining(" ,"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse(errors.toString()));
+        } else {
+            String token = getAuthToken(request);
+            int authUserId = jwtUtils.getId(token);
+            model.setUser(userService.getUserById(authUserId));
+
+            return ResponseEntity.ok(itemService.save(model));
+        }
+    }
+
+    @GetMapping("/get")
+    public List<Item> getItems() {
+        return itemService.findAll();
     }
 
     @PutMapping(value = "/update/{id}")
-    public ITemEntity editITem(@RequestBody ITemEntity model, @PathVariable("id") int id) {
+    public Item editITem(@RequestBody Item model, @PathVariable("id") int id) {
+        model.setItem_id(id);
         return itemService.update(model);
     }
 
     @DeleteMapping(value = "/delete/{id}")
-    public int deleteItem(@PathVariable("id") int id) {
-        return itemService.delete(id);
+    public ResponseEntity<?> deleteItem(@PathVariable("id") int id, HttpServletRequest request) {
+        Item item =itemService.findById(id);
+        // NOT DELETE ****** this for authenticattion  ******
+//        int authUserId = jwtUtils.getId(getAuthToken(request));
+//        if(item.getUser().getUser_id()!=authUserId)
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("unauthorizedd"));
+
+        return ResponseEntity.ok(itemService.remove(item));
     }
 
-    @GetMapping("/getById")
-    public List<ITemEntity> getItemByAccountId(@RequestParam("id") int id){
+    @GetMapping("/getByAccId")
+    public List<Item> getItemsByAccountId(@RequestParam("id") int id) {
         return itemService.findByAccount(id);
+    }
+
+    @GetMapping("/getByCate")
+    public List<Item> getItemsByCate(@RequestBody Category category) {
+        return itemService.findItemByCategory(category);
     }
 
 }
