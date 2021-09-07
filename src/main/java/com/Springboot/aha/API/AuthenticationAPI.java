@@ -58,14 +58,10 @@ public class AuthenticationAPI {
     }
 
     @PostMapping(value = "/signup")
-    public ResponseEntity<?> insert(@Valid @RequestBody User model, BindingResult bindingResult) {
+    public ResponseEntity<?> insert( @RequestBody User model) {
 
-        if (bindingResult.hasErrors()){
-            String errors = bindingResult.getAllErrors().stream().map(e -> e.getDefaultMessage()).collect(Collectors.joining(" ,"));
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse(errors.toString()));}
-        else {
+
             URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/auth/signup").toUriString());
             return ResponseEntity.created(uri).body(accountService.save(model));
-        }
     }
 }
