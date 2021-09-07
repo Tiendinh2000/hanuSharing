@@ -74,6 +74,9 @@ public class UserAPI {
             return new ResponseEntity<Integer>(HttpStatus.BAD_REQUEST);
 
     }
-
+    @GetMapping(value = "/getS")
+    public String getS() {
+        return "tien";
+    }
 
 }
