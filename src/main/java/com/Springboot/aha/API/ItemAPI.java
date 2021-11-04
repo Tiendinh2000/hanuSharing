@@ -54,8 +54,11 @@ public class ItemAPI {
     }
 
     @GetMapping("/get")
-    public List<Item> getItems() {
+    public List<Item> getItems(HttpServletRequest request) {
         return itemService.findAll();
+//        String token = getAuthToken(request);
+//        int authUserId = jwtUtils.getId(token);
+//        return itemService.findByAccount(authUserId);
     }
 
     @PutMapping(value = "/update/{id}")

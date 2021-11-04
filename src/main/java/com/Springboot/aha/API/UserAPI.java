@@ -1,7 +1,6 @@
 package com.Springboot.aha.API;
 
 import com.Springboot.aha.Entity.User;
-import com.Springboot.aha.Repository.IRoleRepository;
 import com.Springboot.aha.Service.IItemService;
 import com.Springboot.aha.Service.impl.UserService;
 import com.Springboot.aha.dto.MessageResponse;
@@ -25,18 +24,16 @@ public class UserAPI {
 
     @Autowired
     private IItemService itemService;
-    @Autowired
-    IRoleRepository roleRepository;
 
     @Autowired
     private UserService accountService;
 
     @Autowired
-    PasswordEncoder passwordEncoder;
+   private PasswordEncoder passwordEncoder;
 
     @GetMapping(value = "/get")
     public ResponseEntity<List<User>> getAccount() {
-        List accountList = accountService.findAll();
+        List<User> accountList = accountService.findAll();
         return ResponseEntity.ok(accountList);
     }
 

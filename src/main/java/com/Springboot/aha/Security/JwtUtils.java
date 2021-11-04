@@ -19,13 +19,11 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class JwtUtils {
+    public static final String Bearer = "Bearer ";
     @Value("${aha.app.jwtExpirationMs}")
     private int expiredTime;
-
     @Value("${aha.app.sercretKey}")
     private String SecretKey;
-
-   public static final String Bearer="Bearer ";
 
     public boolean validToken(String token) {
         try {

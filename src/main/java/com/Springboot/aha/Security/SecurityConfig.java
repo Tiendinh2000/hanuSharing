@@ -28,10 +28,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private AuthEntryPoint unauthorizedHandler;
 
-//    @Bean
-//    public AuthenticationFilter authenticationFilter() {
-//        return new AuthenticationFilter();
-//    }
+    @Bean
+    public AuthenticationFilter authenticationFilter() {
+        return new AuthenticationFilter();
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -49,12 +49,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.cors().and().csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(STATELESS).and()
-                .authorizeRequests().antMatchers("/auth/**").permitAll().and();
-//                .authorizeRequests().antMatchers("/api/user/**").hasAuthority(String.valueOf(ERole.ROLE_ADMIN)).and()
-//                .authorizeRequests().antMatchers("/api/items/**").hasAuthority(String.valueOf(ERole.ROLE_USER))
-//        ;
-//        http.authorizeRequests().anyRequest().authenticated();
-     //   http.addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+                .authorizeRequests().antMatchers("/auth/**").permitAll().and()
+                .authorizeRequests().antMatchers("/api/user/**").hasAuthority(String.valueOf(ERole.ROLE_ADMIN)).and()
+                .authorizeRequests().antMatchers("/api/items/**").hasAuthority(String.valueOf(ERole.ROLE_USER))
+        ;
+        http.authorizeRequests().anyRequest().authenticated();
+        http.addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
     }
 

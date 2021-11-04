@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@RestController()
+@RestController
 @RequestMapping("/auth")
 public class AuthenticationAPI {
 

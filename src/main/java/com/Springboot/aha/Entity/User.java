@@ -24,7 +24,7 @@ public class User {
 
     @Column(name = "username")
     @Size(min = 1,message ="username >3 characters")
-    private String userName;
+    private String username;
 
     @Column(name = "password")
     @Size(min = 1,message ="password >3 characters")

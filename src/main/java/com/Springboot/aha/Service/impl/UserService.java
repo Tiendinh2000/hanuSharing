@@ -46,8 +46,8 @@ public class UserService implements IUserService {
 
         if(userRepository.existsById(newAccount.getUser_id())){
             User old = userRepository.findById(newAccount.getUser_id()).get();
-            if(newAccount.getUserName()!=null)
-                old.setUserName(newAccount.getUserName());
+            if(newAccount.getUsername()!=null)
+                old.setUsername(newAccount.getUsername());
             if(newAccount.getPassword()!=null)
                 old.setPassword(encoder.encode(newAccount.getPassword()));
           return  userRepository.save(old);
@@ -78,14 +78,14 @@ public class UserService implements IUserService {
 
     @Override
     public void addRoletoUser(String username, String rolename) {
-        User user = userRepository.findByUserName(username);
+        User user = userRepository.findUserByUsername(username);
         Role role = roleRepository.findByName(rolename);
         user.getRoles().add(role);
     }
 
     @Override
     public User getUserByUsername(String username) {
-        return userRepository.findByUserName(username);
+        return userRepository.findUserByUsername(username);
     }
 
     @Override
