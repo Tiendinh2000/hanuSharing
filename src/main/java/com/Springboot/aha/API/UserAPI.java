@@ -29,7 +29,7 @@ public class UserAPI {
     private UserService accountService;
 
     @Autowired
-   private PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
     @GetMapping(value = "/get")
     public ResponseEntity<List<User>> getAccount() {
@@ -37,12 +37,13 @@ public class UserAPI {
         return ResponseEntity.ok(accountList);
     }
 
+
     @PostMapping(value = "/add")
     public ResponseEntity<?> insert(@Valid @RequestBody User model, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()){
+        if (bindingResult.hasErrors()) {
             String errors = bindingResult.getAllErrors().stream().map(e -> e.getDefaultMessage()).collect(Collectors.joining(" ,"));
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse(errors.toString()));}
-        else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse(errors.toString()));
+        } else {
             URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/user/add").toUriString());
             return ResponseEntity.created(uri).body(accountService.save(model));
         }

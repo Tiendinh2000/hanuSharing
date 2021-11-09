@@ -1,29 +1,27 @@
 package com.Springboot.aha.Service.impl;
 
-import com.Springboot.aha.Entity.User;
 import com.Springboot.aha.Entity.Role;
-import com.Springboot.aha.Repository.IUserRepository;
+import com.Springboot.aha.Entity.User;
 import com.Springboot.aha.Repository.IRoleRepository;
+import com.Springboot.aha.Repository.IUserRepository;
 import com.Springboot.aha.Service.IUserService;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
 @Slf4j
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class UserService implements IUserService {
 
     @Autowired
@@ -36,34 +34,35 @@ public class UserService implements IUserService {
     private IRoleRepository roleRepository;
 
     @Override
-    public User save(User item) {
-        item.setPassword(encoder.encode(item.getPassword()));
-        return userRepository.save(item);
+    public User save(User user) {
+        user.setPassword(encoder.encode(user.getPassword()));
+
+        return userRepository.save(user);
     }
 
     @Override
     public User update(User newAccount) {
 
-        if(userRepository.existsById(newAccount.getUser_id())){
+        if (userRepository.existsById(newAccount.getUser_id())) {
             User old = userRepository.findById(newAccount.getUser_id()).get();
-            if(newAccount.getUsername()!=null)
+            if (newAccount.getUsername() != null)
                 old.setUsername(newAccount.getUsername());
-            if(newAccount.getPassword()!=null)
+            if (newAccount.getPassword() != null)
                 old.setPassword(encoder.encode(newAccount.getPassword()));
-          return  userRepository.save(old);
-        }
-        else
-           return null;
+            return userRepository.save(old);
+        } else
+            return null;
     }
 
     @Override
     public int delete(int id) {
-       try {
-           User entity = userRepository.findById(id).get();
-           userRepository.delete(entity);
-           return id;
-       }catch (Exception e){
-       return -1;}
+        try {
+            User entity = userRepository.findById(id).get();
+            userRepository.delete(entity);
+            return id;
+        } catch (Exception e) {
+            return -1;
+        }
     }
 
     @Override
@@ -89,9 +88,18 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public boolean usernameIsExisted(String username) {
+        if (getUserByUsername(username) != null)
+            return true;
+        else
+            return false;
+    }
+
+
+    @Override
     public User getUserById(int id) {
         return userRepository.findById(id).get();
     }
 
-    
+
 }

@@ -26,7 +26,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    void findUserByUsername() {
+    void canFindUserByUsername() {
         //given
         String name = "testcase";
         User user = new User(1, name, "test", null, null);

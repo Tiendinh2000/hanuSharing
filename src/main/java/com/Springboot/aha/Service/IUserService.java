@@ -1,8 +1,8 @@
 package com.Springboot.aha.Service;
 
 
-import com.Springboot.aha.Entity.User;
 import com.Springboot.aha.Entity.Role;
+import com.Springboot.aha.Entity.User;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +23,8 @@ public interface IUserService {
     void addRoletoUser(String username, String rolename);
 
     User getUserByUsername(String username);
+
+    boolean usernameIsExisted(String username);
 
     User getUserById(int id);
 }
