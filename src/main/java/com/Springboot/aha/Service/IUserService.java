@@ -27,4 +27,5 @@ public interface IUserService {
     boolean usernameIsExisted(String username);
 
     User getUserById(int id);
+
 }

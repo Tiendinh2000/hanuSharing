@@ -1,9 +1,11 @@
 package com.Springboot.aha;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@SpringBootTest
 class AhaApplicationTests {
     Cal cal = new Cal();
 
@@ -13,7 +15,7 @@ class AhaApplicationTests {
         int a = 10;
         int b = 20;
         //when
-        int expected = 31;
+        int expected = 30;
         int result = cal.add(a, b);
 
         // then

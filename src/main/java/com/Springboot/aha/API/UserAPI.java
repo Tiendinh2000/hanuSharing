@@ -1,9 +1,9 @@
 package com.Springboot.aha.API;
 
+import com.Springboot.aha.DTO.MessageResponse;
 import com.Springboot.aha.Entity.User;
 import com.Springboot.aha.Service.IItemService;
 import com.Springboot.aha.Service.impl.UserService;
-import com.Springboot.aha.dto.MessageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +37,18 @@ public class UserAPI {
         return ResponseEntity.ok(accountList);
     }
 
+
+    @GetMapping(value = "/find-by-name")
+    public ResponseEntity<User> findUsersByName() {
+        User accountList = accountService.getUserByUsername("user");
+        return ResponseEntity.ok(accountList);
+    }
+
+//    @GetMapping(value = "/find-by-role")
+//    public ResponseEntity<List<User>> findUsersByRole() {
+//        List<User> accountList = accountService.getUserByRole("ROLE_USER");
+//        return ResponseEntity.ok(accountList);
+//    }
 
     @PostMapping(value = "/add")
     public ResponseEntity<?> insert(@Valid @RequestBody User model, BindingResult bindingResult) {

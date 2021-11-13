@@ -1,5 +1,7 @@
 package com.Springboot.aha.Exception;
 
+import com.Springboot.aha.Exception.User.UsernameIsInvalidException;
+import com.Springboot.aha.Exception.User.UsernameIsNotUniqueException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -10,11 +12,37 @@ import java.time.ZonedDateTime;
 
 @ControllerAdvice
 public class ApiExceptionHandler {
+    HttpStatus badRequest = HttpStatus.BAD_REQUEST;
+
     @ExceptionHandler(value = {ApiRequestException.class})
     public ResponseEntity<Object> handleApiResquestExceptionn(ApiRequestException e) {
         // reate payload exception
-        ApiException apiException = new ApiException(e.getMessage(), e, HttpStatus.BAD_REQUEST, ZonedDateTime.now(ZoneId.of("Z")));
+        ApiException apiException = new ApiException(e.getMessage(),
+                badRequest,
+                ZonedDateTime.now(ZoneId.of("Z")));
         // return response
-        return new ResponseEntity<>(apiException, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(apiException, badRequest);
+    }
+
+    @ExceptionHandler(value = {UsernameIsNotUniqueException.class})
+    public ResponseEntity<Object> handleUsernameIsNotUniqueExceptionn(UsernameIsNotUniqueException e) {
+
+        // reate payload exception
+        ApiException apiException = new ApiException(e.getMessage(),
+                badRequest,
+                ZonedDateTime.now(ZoneId.of("Z")));
+        // return response
+        return new ResponseEntity<>(apiException, badRequest);
+    }
+
+    @ExceptionHandler(value = {UsernameIsInvalidException.class})
+    public ResponseEntity<Object> handleUsernameIsInvalidExceptionn(UsernameIsInvalidException e) {
+
+        // reate payload exception
+        ApiException apiException = new ApiException(e.getMessage(),
+                badRequest,
+                ZonedDateTime.now(ZoneId.of("Z")));
+        // return response
+        return new ResponseEntity<>(apiException, badRequest);
     }
 }

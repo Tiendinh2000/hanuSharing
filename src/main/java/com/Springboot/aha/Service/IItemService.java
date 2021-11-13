@@ -9,10 +9,18 @@ import java.util.List;
 @Service
 public interface IItemService {
     Item save(Item item);
+
     Item update(Item item);
+
     Item remove(Item iTem);
+
     List<Item> findAll();
+
     Item findById(int id);
+
     List<Item> findByAccount(int id);
+
     List<Item> findItemByCategory(Category category);
+
+    List<Item> findByPrice(int price);
 }

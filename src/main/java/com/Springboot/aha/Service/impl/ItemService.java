@@ -1,10 +1,10 @@
 package com.Springboot.aha.Service.impl;
 
 import com.Springboot.aha.Entity.Category;
-import com.Springboot.aha.Entity.User;
 import com.Springboot.aha.Entity.Item;
-import com.Springboot.aha.Repository.IUserRepository;
+import com.Springboot.aha.Entity.User;
 import com.Springboot.aha.Repository.IItemRepository;
+import com.Springboot.aha.Repository.IUserRepository;
 import com.Springboot.aha.Service.IItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,8 +48,8 @@ public class ItemService implements IItemService {
         try {
             itemRepository.delete(iTem);
             return iTem;
-        }catch (Exception e){
-            return  null;
+        } catch (Exception e) {
+            return null;
         }
     }
 
@@ -61,12 +61,12 @@ public class ItemService implements IItemService {
 
     @Override
     public Item findById(int id) {
-       try {
-          return itemRepository.findById(id).get();
-       }catch (Exception e){
+        try {
+            return itemRepository.findById(id).get();
+        } catch (Exception e) {
 
-           return null;
-       }
+            return null;
+        }
     }
 
     @Override
@@ -81,6 +81,11 @@ public class ItemService implements IItemService {
     @Override
     public List<Item> findItemByCategory(Category category) {
         return itemRepository.findAllByCategory(category);
+    }
+
+    @Override
+    public List<Item> findByPrice(int price) {
+        return itemRepository.findByPrice(price);
     }
 
 

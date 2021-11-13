@@ -1,11 +1,11 @@
 package com.Springboot.aha.API;
 
+import com.Springboot.aha.DTO.MessageResponse;
 import com.Springboot.aha.Entity.Category;
 import com.Springboot.aha.Entity.Item;
 import com.Springboot.aha.Security.JwtUtils;
 import com.Springboot.aha.Service.IItemService;
 import com.Springboot.aha.Service.IUserService;
-import com.Springboot.aha.dto.MessageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -69,7 +69,7 @@ public class ItemAPI {
 
     @DeleteMapping(value = "/delete/{id}")
     public ResponseEntity<?> deleteItem(@PathVariable("id") int id, HttpServletRequest request) {
-        Item item =itemService.findById(id);
+        Item item = itemService.findById(id);
         // NOT DELETE ****** this for authenticattion  ******
 //        int authUserId = jwtUtils.getId(getAuthToken(request));
 //        if(item.getUser().getUser_id()!=authUserId)
@@ -88,5 +88,9 @@ public class ItemAPI {
         return itemService.findItemByCategory(category);
     }
 
+    @GetMapping("/get-by-price")
+    public List<Item> getItemsByPrice(@RequestParam("price") int price) {
+        return itemService.findByPrice(price);
+    }
 }
 

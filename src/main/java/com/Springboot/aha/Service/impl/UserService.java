@@ -2,6 +2,7 @@ package com.Springboot.aha.Service.impl;
 
 import com.Springboot.aha.Entity.Role;
 import com.Springboot.aha.Entity.User;
+import com.Springboot.aha.Exception.User.UsernameIsNotUniqueException;
 import com.Springboot.aha.Repository.IRoleRepository;
 import com.Springboot.aha.Repository.IUserRepository;
 import com.Springboot.aha.Service.IUserService;
@@ -35,6 +36,10 @@ public class UserService implements IUserService {
 
     @Override
     public User save(User user) {
+
+        if (usernameIsExisted(user.getUsername())) {
+            throw new UsernameIsNotUniqueException("Username has been occupied, please chose another :))");
+        }
         user.setPassword(encoder.encode(user.getPassword()));
 
         return userRepository.save(user);
@@ -72,6 +77,7 @@ public class UserService implements IUserService {
 
     @Override
     public Role saveRole(Role role) {
+
         return roleRepository.save(role);
     }
 

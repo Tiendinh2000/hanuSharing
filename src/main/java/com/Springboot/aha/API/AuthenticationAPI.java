@@ -1,13 +1,12 @@
 package com.Springboot.aha.API;
 
+import com.Springboot.aha.DTO.LoginRequest;
 import com.Springboot.aha.Entity.User;
+import com.Springboot.aha.Exception.User.UsernameIsInvalidException;
 import com.Springboot.aha.Security.JwtUtils;
 import com.Springboot.aha.Service.impl.UserDetailsImpl;
 import com.Springboot.aha.Service.impl.UserService;
-import com.Springboot.aha.dto.LoginRequest;
-import com.Springboot.aha.dto.MessageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -59,13 +58,9 @@ public class AuthenticationAPI {
 
     @PostMapping(value = "/signup")
     public ResponseEntity<?> insert(@Valid @RequestBody User model, BindingResult bindingResult) {
-        if (accountService.usernameIsExisted(model.getUsername())) {
-            MessageResponse messageResponse = new MessageResponse("Oops this name has been occupied, please chose another!");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(messageResponse);
-        }
         if (bindingResult.hasErrors()) {
             String errors = bindingResult.getAllErrors().stream().map(e -> e.getDefaultMessage()).collect(Collectors.joining(" ,"));
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse(errors.toString()));
+            throw new UsernameIsInvalidException(errors);
         } else {
             URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/auth/signup").toUriString());
             return ResponseEntity.created(uri).body(accountService.save(model));

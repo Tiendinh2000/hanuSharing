@@ -1,10 +1,11 @@
-package com.Springboot.aha.dto;
+package com.Springboot.aha.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+
 @NoArgsConstructor
 @Data
 @AllArgsConstructor
