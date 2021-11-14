@@ -1,6 +1,6 @@
 package com.Springboot.aha.Security;
 
-import com.Springboot.aha.Service.impl.UserDetailsImpl;
+import com.Springboot.aha.Entity.UserDetailsImpl;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;

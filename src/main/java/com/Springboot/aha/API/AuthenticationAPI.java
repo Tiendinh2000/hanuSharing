@@ -2,9 +2,9 @@ package com.Springboot.aha.API;
 
 import com.Springboot.aha.DTO.LoginRequest;
 import com.Springboot.aha.Entity.User;
+import com.Springboot.aha.Entity.UserDetailsImpl;
 import com.Springboot.aha.Exception.User.UsernameIsInvalidException;
 import com.Springboot.aha.Security.JwtUtils;
-import com.Springboot.aha.Service.impl.UserDetailsImpl;
 import com.Springboot.aha.Service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

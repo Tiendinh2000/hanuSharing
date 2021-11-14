@@ -12,6 +12,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -69,13 +71,25 @@ class UserServiceTest {
         //
         verify(userRepository, never()).save(any());
     }
-//
+
 //    @Test
 //    void update() {
+//
 //    }
 
     @Test
-    void delete() {
+    void givenUserId_thenDeleteUser() {
+        //given
+        int id = 1;
+        User user = User.builder().user_id(id).username("tien").password("tiendinh124").build();
+        given(userRepository.findById(id)).willReturn(Optional.ofNullable(user));
+        //when
+        underTest.delete(id);
+        //then
+        ArgumentCaptor<User> argumentCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).delete(argumentCaptor.capture());
+        User captured = argumentCaptor.getValue();
+        assertThat(captured).isEqualTo(user);
     }
 
     @Test
@@ -95,15 +109,32 @@ class UserServiceTest {
 //    }
 //
 
-//    @Test
-//    void canGetUserByUsername() {
-//        String name = "tien";
-//        User found = underTest.getUserByUsername(name);
-//
-//        assertEquals(null, found);
-//    }
-//
-//    @Test
-//    void getUserById() {
-//    }
+    @Test
+    void givenUsername_thenGetUserByUsername() {
+        //given
+        String name = "tien";
+
+        User user = User.builder().username(name).build();
+        given(userRepository.findUserByUsername(name)).willReturn(user);
+        //when
+        User expect = underTest.getUserByUsername(name);
+        //then
+        assertThat(user).isEqualTo(expect);
+    }
+
+    @Test
+    void givenId_thenGetUserById() {
+        //given
+        int id = 1;
+        User user = User.builder().user_id(id).username("tien").password("tiendinh124").build();
+        given(userRepository.findById(id)).willReturn(Optional.ofNullable(user));
+
+
+        //when
+        User expect = userRepository.findById(id).get();
+        //then
+        verify(userRepository).findById(id);
+        assertThat(user).isEqualTo(expect);
+
+    }
 }

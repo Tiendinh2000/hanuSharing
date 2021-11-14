@@ -1,6 +1,5 @@
-package com.Springboot.aha.Service.impl;
+package com.Springboot.aha.Entity;
 
-import com.Springboot.aha.Entity.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;

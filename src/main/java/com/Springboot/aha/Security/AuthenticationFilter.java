@@ -1,20 +1,12 @@
 package com.Springboot.aha.Security;
 
-import com.Springboot.aha.Entity.Role;
-import com.Springboot.aha.Service.impl.UserDetailsServiceImpl;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -22,7 +14,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import static java.util.Arrays.stream;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -33,8 +28,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class AuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private JwtUtils jwtUtils;
-    @Autowired
-    private UserDetailsServiceImpl userDetailsServiceImpl;
+
 
     private final String Bearer = "Bearer ";
 
@@ -55,7 +49,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                     String[] roles = jwtUtils.getRoles(token);
                     int id = jwtUtils.getId(token);
 
-                    UsernamePasswordAuthenticationToken authenticationToken = getUsernamePasswordAuthenticationToken(username,roles);
+                    UsernamePasswordAuthenticationToken authenticationToken = getUsernamePasswordAuthenticationToken(username, roles);
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                     filterChain.doFilter(request, response);
                 } catch (Exception e) {
@@ -76,7 +70,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
     }
 
-    private UsernamePasswordAuthenticationToken getUsernamePasswordAuthenticationToken(String username,String[] roles){
+    private UsernamePasswordAuthenticationToken getUsernamePasswordAuthenticationToken(String username, String[] roles) {
 
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
         stream(roles).forEach(role -> {

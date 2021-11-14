@@ -1,6 +1,7 @@
 package com.Springboot.aha.Service.impl;
 
 import com.Springboot.aha.Entity.User;
+import com.Springboot.aha.Entity.UserDetailsImpl;
 import com.Springboot.aha.Repository.IUserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         try {
             User user = userRepository.findUserByUsername(s);
             return UserDetailsImpl.build(user);
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error("username not found");
             return (UserDetails) new Exception("username not found");
         }
