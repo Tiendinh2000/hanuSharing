@@ -50,8 +50,12 @@ public class UserService implements IUserService {
 
         if (userRepository.existsById(newAccount.getUser_id())) {
             User old = userRepository.findById(newAccount.getUser_id()).get();
-            if (newAccount.getUsername() != null)
+            if (newAccount.getUsername() != null) {
+                if (usernameIsExisted(newAccount.getUsername())) {
+                    throw new UsernameIsNotUniqueException("Username has been occupied, please chose another :))");
+                }
                 old.setUsername(newAccount.getUsername());
+            }
             if (newAccount.getPassword() != null)
                 old.setPassword(encoder.encode(newAccount.getPassword()));
             return userRepository.save(old);

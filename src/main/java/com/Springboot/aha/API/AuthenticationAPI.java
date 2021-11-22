@@ -3,6 +3,7 @@ package com.Springboot.aha.API;
 import com.Springboot.aha.DTO.LoginRequest;
 import com.Springboot.aha.Entity.User;
 import com.Springboot.aha.Entity.UserDetailsImpl;
+import com.Springboot.aha.Exception.BindingResultException.BindingResultException;
 import com.Springboot.aha.Exception.User.UsernameIsInvalidException;
 import com.Springboot.aha.Security.JwtUtils;
 import com.Springboot.aha.Service.impl.UserService;
@@ -13,10 +14,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
@@ -26,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/auth")
 public class AuthenticationAPI {
@@ -40,7 +39,7 @@ public class AuthenticationAPI {
     private UserService accountService;
 
     @PostMapping("/signin")
-    public ResponseEntity<?> SignIn(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> signIn(@RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
         );
@@ -57,9 +56,9 @@ public class AuthenticationAPI {
     }
 
     @PostMapping(value = "/signup")
-    public ResponseEntity<?> insert(@Valid @RequestBody User model, BindingResult bindingResult) {
+    public ResponseEntity<?> signUp(@Valid @RequestBody User model, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            String errors = bindingResult.getAllErrors().stream().map(e -> e.getDefaultMessage()).collect(Collectors.joining(" ,"));
+            String errors = BindingResultException.getErrorMessage(bindingResult);
             throw new UsernameIsInvalidException(errors);
         } else {
             URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/auth/signup").toUriString());

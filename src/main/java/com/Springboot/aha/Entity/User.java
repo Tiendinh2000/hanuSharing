@@ -15,7 +15,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@Table(name = "user")
+@Table(name = "user", indexes = {
+        @Index(name = "idx_user_username_unq", columnList = "username", unique = true)
+})
 @Builder
 public class User {
 

@@ -1,8 +1,9 @@
-package com.Springboot.aha.API;
+package com.Springboot.aha.API.User;
 
 import com.Springboot.aha.DTO.MessageResponse;
 import com.Springboot.aha.Entity.Category;
 import com.Springboot.aha.Entity.Item;
+import com.Springboot.aha.Exception.BindingResultException.BindingResultException;
 import com.Springboot.aha.Security.JwtUtils;
 import com.Springboot.aha.Service.IItemService;
 import com.Springboot.aha.Service.IUserService;
@@ -15,13 +16,12 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api/items")
+@RequestMapping("/user/api/items")
 public class ItemAPI {
 
     @Autowired
@@ -42,23 +42,23 @@ public class ItemAPI {
     @PostMapping(value = "/add")
     public ResponseEntity<?> createItem(HttpServletRequest request, @Valid @RequestBody Item model, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            String errors = bindingResult.getAllErrors().stream().map(e -> e.getDefaultMessage()).collect(Collectors.joining(" ,"));
+            String errors = BindingResultException.getErrorMessage(bindingResult);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse(errors.toString()));
         } else {
             String token = getAuthToken(request);
             int authUserId = jwtUtils.getId(token);
             model.setUser(userService.getUserById(authUserId));
-
             return ResponseEntity.ok(itemService.save(model));
         }
     }
 
     @GetMapping("/get")
     public List<Item> getItems(HttpServletRequest request) {
-        return itemService.findAll();
+
 //        String token = getAuthToken(request);
 //        int authUserId = jwtUtils.getId(token);
 //        return itemService.findByAccount(authUserId);
+        return itemService.findAll();
     }
 
     @PutMapping(value = "/update/{id}")
@@ -73,7 +73,7 @@ public class ItemAPI {
         // NOT DELETE ****** this for authenticattion  ******
 //        int authUserId = jwtUtils.getId(getAuthToken(request));
 //        if(item.getUser().getUser_id()!=authUserId)
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("unauthorizedd"));
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("unauthorized"));
 
         return ResponseEntity.ok(itemService.remove(item));
     }
