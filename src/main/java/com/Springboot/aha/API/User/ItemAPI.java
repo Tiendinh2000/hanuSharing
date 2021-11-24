@@ -21,7 +21,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/user/api/items")
+@RequestMapping("/api/user/items")
 public class ItemAPI {
 
     @Autowired

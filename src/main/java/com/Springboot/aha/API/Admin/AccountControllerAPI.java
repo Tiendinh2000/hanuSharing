@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/admin/api/account-controller")
+@RequestMapping("/api/admin/account-controller")
 public class AccountControllerAPI {
 
     @Autowired

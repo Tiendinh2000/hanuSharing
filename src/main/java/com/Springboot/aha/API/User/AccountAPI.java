@@ -20,7 +20,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/user/api/account-controller")
+@RequestMapping("/api/user/account-controller")
 public class AccountAPI {
     @Autowired
     private IUserService userService;
@@ -60,7 +60,7 @@ public class AccountAPI {
         }
 
     }
-
+    
     @PutMapping(value = "/change-username")
     public ResponseEntity<?> changeUserName(@Valid @RequestBody User model, HttpServletRequest request) {
 
