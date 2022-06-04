@@ -3,6 +3,7 @@ package com.Springboot.aha.API;
 import com.Springboot.aha.DTO.MessageResponse;
 import com.Springboot.aha.Entity.Category;
 import com.Springboot.aha.Entity.Item;
+import com.Springboot.aha.Exception.User.UnauthorizedException;
 import com.Springboot.aha.Security.JwtUtils;
 import com.Springboot.aha.Service.IItemService;
 import com.Springboot.aha.Service.IUserService;
@@ -43,7 +44,7 @@ public class ItemAPI {
     public ResponseEntity<?> createItem(HttpServletRequest request, @Valid @RequestBody Item model, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             String errors = bindingResult.getAllErrors().stream().map(e -> e.getDefaultMessage()).collect(Collectors.joining(" ,"));
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse(errors.toString()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse(errors));
         } else {
             String token = getAuthToken(request);
             int authUserId = jwtUtils.getId(token);
@@ -55,27 +56,19 @@ public class ItemAPI {
 
     @GetMapping("/get")
     public List<Item> getItems(HttpServletRequest request) {
-        return itemService.findAll();
-//        String token = getAuthToken(request);
-//        int authUserId = jwtUtils.getId(token);
-//        return itemService.findByAccount(authUserId);
+        String token = getAuthToken(request);
+        int authUserId = jwtUtils.getId(token);
+        return itemService.findByAccount(authUserId);
     }
 
     @PutMapping(value = "/update/{id}")
-    public Item editITem(@RequestBody Item model, @PathVariable("id") int id) {
-        model.setItem_id(id);
-        return itemService.update(model);
+    public Item editITem(@RequestBody Item model, @PathVariable("id") int id, HttpServletRequest request) {
+        return itemService.update(model, id,request);
     }
 
     @DeleteMapping(value = "/delete/{id}")
     public ResponseEntity<?> deleteItem(@PathVariable("id") int id, HttpServletRequest request) {
-        Item item = itemService.findById(id);
-        // NOT DELETE ****** this for authenticattion  ******
-//        int authUserId = jwtUtils.getId(getAuthToken(request));
-//        if(item.getUser().getUser_id()!=authUserId)
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("unauthorizedd"));
-
-        return ResponseEntity.ok(itemService.remove(item));
+        return ResponseEntity.ok(itemService.remove(id,request));
     }
 
     @GetMapping("/getByAccId")

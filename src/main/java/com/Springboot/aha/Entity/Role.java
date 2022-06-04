@@ -1,10 +1,7 @@
 package com.Springboot.aha.Entity;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -21,4 +18,11 @@ public class Role {
     @Enumerated(EnumType.STRING)
     private ERole name;
 
+    public static Role getUserRole(){
+        return new Role(2,ERole.ROLE_USER);
+    }
+
+    public static Role getAdminRole(){
+        return new Role(1,ERole.ROLE_ADMIN);
+    }
 }

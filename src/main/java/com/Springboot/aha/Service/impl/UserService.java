@@ -1,8 +1,10 @@
 package com.Springboot.aha.Service.impl;
 
+import com.Springboot.aha.Entity.ERole;
 import com.Springboot.aha.Entity.Role;
 import com.Springboot.aha.Entity.User;
 import com.Springboot.aha.Exception.User.UsernameIsNotUniqueException;
+import com.Springboot.aha.Exception.common.BadRequestException;
 import com.Springboot.aha.Repository.IRoleRepository;
 import com.Springboot.aha.Repository.IUserRepository;
 import com.Springboot.aha.Service.IUserService;
@@ -15,6 +17,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -39,10 +43,13 @@ public class UserService implements IUserService {
 
         if (usernameIsExisted(user.getUsername())) {
             throw new UsernameIsNotUniqueException("Username has been occupied, please chose another :))");
-        }
+        }else{
         user.setPassword(encoder.encode(user.getPassword()));
-
+        Collection c =new ArrayList();
+        c.add(Role.getUserRole());
+        user.setRoles(c);
         return userRepository.save(user);
+        }
     }
 
     @Override
@@ -55,8 +62,10 @@ public class UserService implements IUserService {
             if (newAccount.getPassword() != null)
                 old.setPassword(encoder.encode(newAccount.getPassword()));
             return userRepository.save(old);
-        } else
+        } else{
             return null;
+        }
+
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.Springboot.aha.Security;
 
 import com.Springboot.aha.Entity.ERole;
+import com.Springboot.aha.Exception.User.InvalidUsernameOrPasswordException;
 import com.Springboot.aha.Service.impl.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -40,7 +41,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+            auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
     }
 
 
@@ -50,8 +51,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(STATELESS).and()
                 .authorizeRequests().antMatchers("/auth/**").permitAll().and()
+                .authorizeRequests().antMatchers("/api/file/**").permitAll().and()
                 .authorizeRequests().antMatchers("/api/user/**").hasAuthority(String.valueOf(ERole.ROLE_ADMIN)).and()
-                .authorizeRequests().antMatchers("/api/items/**").hasAuthority(String.valueOf(ERole.ROLE_USER))
+                .authorizeRequests().antMatchers("/api/items/**").hasAuthority(String.valueOf(ERole.ROLE_USER)).and()
+
         ;
         http.authorizeRequests().anyRequest().authenticated();
         http.addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class);

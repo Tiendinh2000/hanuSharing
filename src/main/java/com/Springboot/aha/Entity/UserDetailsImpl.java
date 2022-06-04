@@ -1,5 +1,6 @@
 package com.Springboot.aha.Entity;
 
+import com.Springboot.aha.Exception.User.InvalidUsernameOrPasswordException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,10 +28,10 @@ public class UserDetailsImpl implements UserDetails {
         this.authorities = authorities;
     }
 
-    public static UserDetailsImpl build(User user) {
-        List<GrantedAuthority> authorityList = user.getRoles().stream().
-                map(role -> new SimpleGrantedAuthority(role.getName().name())).collect(Collectors.toList());
-        return new UserDetailsImpl(user.getUser_id(), user.getUsername(), user.getPassword(), authorityList);
+    public static UserDetailsImpl build(User user) throws  InvalidUsernameOrPasswordException {
+            List<GrantedAuthority> authorityList = user.getRoles().stream().
+                    map(role -> new SimpleGrantedAuthority(role.getName().name())).collect(Collectors.toList());
+            return new UserDetailsImpl(user.getUser_id(), user.getUsername(), user.getPassword(), authorityList);
     }
 
 

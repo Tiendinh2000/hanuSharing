@@ -28,8 +28,6 @@ public class UserAPI {
     @Autowired
     private UserService accountService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @GetMapping(value = "/get")
     public ResponseEntity<List<User>> getAccount() {
@@ -49,17 +47,6 @@ public class UserAPI {
 //        List<User> accountList = accountService.getUserByRole("ROLE_USER");
 //        return ResponseEntity.ok(accountList);
 //    }
-
-    @PostMapping(value = "/add")
-    public ResponseEntity<?> insert(@Valid @RequestBody User model, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            String errors = bindingResult.getAllErrors().stream().map(e -> e.getDefaultMessage()).collect(Collectors.joining(" ,"));
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse(errors.toString()));
-        } else {
-            URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/user/add").toUriString());
-            return ResponseEntity.created(uri).body(accountService.save(model));
-        }
-    }
 
     @PutMapping(value = "/update/{id}")
     public ResponseEntity<User> update(@RequestBody User model, @PathVariable("id") int id) {

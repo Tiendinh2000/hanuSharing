@@ -16,6 +16,7 @@ import javax.validation.constraints.Size;
 @ToString
 @Entity
 @Table(name = "items")
+@JsonIgnoreProperties("user")
 public class Item {
 
     @Id
@@ -30,9 +31,9 @@ public class Item {
     @Min(value = 0,message = "value can not < 0")
     private int price;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+
+    @ManyToOne()
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_user"))
-    @JsonIgnoreProperties(value = "itemList")
     private User user;
 
     @ManyToOne

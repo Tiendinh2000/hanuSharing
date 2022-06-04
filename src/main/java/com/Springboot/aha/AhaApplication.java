@@ -10,9 +10,5 @@ public class AhaApplication {
         SpringApplication.run(AhaApplication.class, args);
     }
 
-//    @Bean
-//    public PasswordEncoder passwordEncoder() {
-//        return new BCryptPasswordEncoder();
-//    }
 
 }
