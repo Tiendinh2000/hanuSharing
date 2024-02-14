@@ -1,18 +1,8 @@
-# Sử dụng image adoptopenjdk với JDK 8 trên hệ điều hành alpine
-FROM adoptopenjdk/openjdk8:alpine
-
-# Cài đặt các biến môi trường
-ENV APP_HOME /app
-ENV PORT 8081
-
-# Tạo thư mục làm việc
-WORKDIR $APP_HOME
-
-# Sao chép các file cần thiết và thực hiện gói ứng dụng
+FROM maven:3.8.5-openjdk-17 AS build
 COPY . .
+RUN mvn clean package -DskipTests
 
-# Chạy Maven để biên dịch ứng dụng
-RUN ./mvnw package -DskipTests
-
-# Đặt lệnh khởi động cho ứng dụng
-CMD ["java", "-jar", "target/sharing.jar"]
+FROM openjdk:17.0.1-jdk-slim
+COPY --from=build /target/sharing.jar sharing.jar
+EXPOSE 8081
+ENTRYPOINT ["java","-jar","sharing.jar"]
