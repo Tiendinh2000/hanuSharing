@@ -14,10 +14,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static java.util.Arrays.stream;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -32,13 +29,10 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
     private final String Bearer = "Bearer ";
 
-    @Value("${aha.app.sercretKey}")
-    private String SecretKey;
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        if (request.getServletPath().equals("/auth/signin") || request.getServletPath().equals("/auth/signup")) {
+      if (request.getServletPath().equals("/auth/signin") || request.getServletPath().equals("/auth/signup") || isSwaggerResource(request.getServletPath())) {
             filterChain.doFilter(request, response);
         } else {
             String authorizationHeader = request.getHeader(AUTHORIZATION);
@@ -47,7 +41,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                 try {
                     String username = jwtUtils.getUserName(token);
                     String[] roles = jwtUtils.getRoles(token);
-                    int id = jwtUtils.getId(token);
+                   // int id = jwtUtils.getId(token);
 
                     UsernamePasswordAuthenticationToken authenticationToken = getUsernamePasswordAuthenticationToken(username, roles);
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
@@ -68,6 +62,17 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
+    }
+
+    private boolean isSwaggerResource(String URL) {
+        String[] patterns = {"/v2/api-docs", "/configuration/ui", "/swagger-resources","/swagger-resources/.*", "/configuration/security", "/swagger-ui.html", "/swagger-ui.*", "/webjars/.*", "/swagger/.*","/null/swagger-resources/.*", "/csrf"};
+
+        for (String pattern : patterns) {
+            if (URL.matches(pattern)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private UsernamePasswordAuthenticationToken getUsernamePasswordAuthenticationToken(String username, String[] roles) {

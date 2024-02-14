@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api/admin/account-controller")
+@RequestMapping("/api/admin/account")
 public class AccountControllerAPI {
 
     @Autowired
@@ -84,6 +84,5 @@ public class AccountControllerAPI {
             return new ResponseEntity<Integer>(HttpStatus.BAD_REQUEST);
 
     }
-
 
 }

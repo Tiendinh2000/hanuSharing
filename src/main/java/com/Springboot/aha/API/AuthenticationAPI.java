@@ -17,6 +17,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.crypto.MacSpi;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.HashMap;
@@ -43,16 +44,14 @@ public class AuthenticationAPI {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
         );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+      //  SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        String jwt = jwtUtils.generateToken(userDetails);
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(item -> item.getAuthority())
-                .collect(Collectors.toList());
-        Map<String, String> response = new HashMap<>();
-        response.put("jwt", jwt);
-        return ResponseEntity.ok(response);
+        Map<String,Object> jwt = jwtUtils.generateToken(userDetails);
+//        List<String> roles = userDetails.getAuthosrities().stream()
+//                .map(item -> item.getAuthority())
+//                .collect(Collectors.toList());toList
+        return ResponseEntity.ok(jwt);
     }
 
     @PostMapping(value = "/signup")

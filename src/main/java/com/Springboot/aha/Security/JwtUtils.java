@@ -22,12 +22,12 @@ public class JwtUtils {
     public static final String Bearer = "Bearer ";
     @Value("${aha.app.jwtExpirationMs}")
     private int expiredTime;
-    @Value("${aha.app.sercretKey}")
-    private String SecretKey;
+    @Value("${aha.app.secretKey}")
+    private String secretKey;
 
     public boolean validToken(String token) {
         try {
-            Jwts.parser().setSigningKey(SecretKey).parseClaimsJws(token);
+            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
         } catch (Exception e) {
             log.error("invalid token");
@@ -35,13 +35,16 @@ public class JwtUtils {
         }
     }
 
-    public String generateToken(UserDetailsImpl userDetails) {
+    public  Map<String, Object> generateToken(UserDetailsImpl userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userDetails.getUsername(), userDetails);
+        Map<String, Object> tokenResponse = new HashMap<>();
+        tokenResponse.put("access_token",createToken(claims, userDetails.getUsername(), userDetails));
+        tokenResponse.put("expired_time",expiredTime);
+        return tokenResponse;
     }
 
     private String createToken(Map<String, Object> claims, String subject, UserDetailsImpl user) {
-        Algorithm algorithm = algorithm(SecretKey);
+        Algorithm algorithm = algorithm(secretKey);
         return JWT.create()
                 .withSubject(subject)
                 .withExpiresAt(new Date(System.currentTimeMillis() + expiredTime))
@@ -53,12 +56,12 @@ public class JwtUtils {
     }
 
     public String getUserNameFromToken(String token) {
-        return Jwts.parser().setSigningKey(SecretKey).parseClaimsJws(token).getBody().getSubject();
+        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
     }
 
 
     private DecodedJWT decodedJWT(String token) {
-        Algorithm algorithm = algorithm(SecretKey);
+        Algorithm algorithm = algorithm(secretKey);
         JWTVerifier verifier = JWT.require(algorithm).build();
         DecodedJWT decodedJWT = verifier.verify(token);
 

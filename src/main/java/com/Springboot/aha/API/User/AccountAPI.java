@@ -20,7 +20,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api/user/account-controller")
+@RequestMapping("/api/user/account")
 public class AccountAPI {
     @Autowired
     private IUserService userService;
@@ -80,4 +80,22 @@ public class AccountAPI {
 
     }
 
+    @PutMapping(value = "/change-phone-number")
+    public ResponseEntity<?> changePhoneNumber(@Valid @RequestBody User model, HttpServletRequest request) {
+
+        String token;
+        if ((token = getAuthToken(request)) == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("You are not signed in!"));
+        } else {
+            try {
+                int userId = jwtUtils.getId(token);
+                model.setUser_id(userId);
+                userService.update(model);
+                return ResponseEntity.ok(new MessageResponse("change successfully!"));
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse(" bad request"));
+            }
+        }
+
+    }
 }
