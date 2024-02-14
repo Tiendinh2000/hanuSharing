@@ -3,7 +3,7 @@ FROM adoptopenjdk/openjdk8:alpine
 
 # Cài đặt các biến môi trường
 ENV APP_HOME /app
-ENV PORT 8080
+ENV PORT 8081
 
 # Tạo thư mục làm việc
 WORKDIR $APP_HOME
