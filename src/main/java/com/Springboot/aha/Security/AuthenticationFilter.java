@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,40 +30,45 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
     private final String Bearer = "Bearer ";
 
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-      if (request.getServletPath().equals("/auth/signin") || request.getServletPath().equals("/auth/signup") || isSwaggerResource(request.getServletPath())) {
+        String authorizationHeader = request.getHeader(AUTHORIZATION);
+
+        if (request.getServletPath().equals("/auth/signin") || request.getServletPath().equals("/auth/signup") || isSwaggerResource(request.getServletPath())) {
             filterChain.doFilter(request, response);
-        } else {
-            String authorizationHeader = request.getHeader(AUTHORIZATION);
-            String token = authorizationHeader.substring(Bearer.length());
-            if (authorizationHeader != null && authorizationHeader.startsWith(Bearer) && !jwtUtils.validToken(token)) {
-                try {
-                    String username = jwtUtils.getUserName(token);
-                    String[] roles = jwtUtils.getRoles(token);
-                   // int id = jwtUtils.getId(token);
-
-                    UsernamePasswordAuthenticationToken authenticationToken = getUsernamePasswordAuthenticationToken(username, roles);
-                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                    filterChain.doFilter(request, response);
-                } catch (Exception e) {
-                    log.error("Error login {}", e.getMessage());
-                    e.printStackTrace();
-                    response.setStatus(FORBIDDEN.value());
-                    response.setHeader("error", e.getMessage());
-                    Map<String, String> errorToken = new HashMap<>();
-                    errorToken.put("error_token", e.getMessage());
-                    response.setContentType(APPLICATION_JSON_VALUE);
-                    new ObjectMapper().writeValue(response.getOutputStream(), errorToken);
-                }
-
-            } else {
-                filterChain.doFilter(request, response);
-            }
+            return;
         }
 
+        if (authorizationHeader == null || !authorizationHeader.startsWith(Bearer)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String token = authorizationHeader.substring(Bearer.length());
+
+        try {
+            if (!jwtUtils.validToken(token)) {
+                throw new RuntimeException("Invalid token");
+            }
+            String username = jwtUtils.getUserName(token);
+            String[] roles = jwtUtils.getRoles(token);
+            UsernamePasswordAuthenticationToken authenticationToken = getUsernamePasswordAuthenticationToken(username, roles);
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            filterChain.doFilter(request, response);
+
+        } catch (Exception e) {
+            log.error("Error login {}", e.getMessage());
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.writeValue(response.getOutputStream(), errorResponse);
+        }
     }
+
 
     private boolean isSwaggerResource(String URL) {
         String[] patterns = {"/v2/api-docs", "/configuration/ui", "/swagger-resources","/swagger-resources/.*", "/configuration/security", "/swagger-ui.html", "/swagger-ui.*", "/webjars/.*", "/swagger/.*","/null/swagger-resources/.*", "/csrf"};

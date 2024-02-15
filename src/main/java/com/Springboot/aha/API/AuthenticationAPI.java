@@ -41,17 +41,21 @@ public class AuthenticationAPI {
 
     @PostMapping("/signin")
     public ResponseEntity<?> signIn(@RequestBody LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
-        );
-      //  SecurityContextHolder.getContext().setAuthentication(authentication);
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        Map<String,Object> jwt = jwtUtils.generateToken(userDetails);
+            Map<String, Object> jwt = jwtUtils.generateToken(userDetails);
 //        List<String> roles = userDetails.getAuthosrities().stream()
 //                .map(item -> item.getAuthority())
 //                .collect(Collectors.toList());toList
-        return ResponseEntity.ok(jwt);
+            return ResponseEntity.ok(jwt);
+        } catch (Exception e) {
+            throw new UsernameIsInvalidException("invalid username or password!");
+        }
     }
 
     @PostMapping(value = "/signup")
