@@ -17,7 +17,7 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.SWAGGER_2).groupName("public-api")
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.Springboot.aha.API.User"))
+                .apis(RequestHandlerSelectors.basePackage("com.Springboot.aha.API"))
                 .build();
     }
 

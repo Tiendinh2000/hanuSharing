@@ -3,10 +3,14 @@ package com.Springboot.aha.Service.impl;
 import com.Springboot.aha.Entity.Category;
 import com.Springboot.aha.Entity.Item;
 import com.Springboot.aha.Entity.User;
+import com.Springboot.aha.Exception.User.InternalException;
+import com.Springboot.aha.Exception.User.PermissionDeniedException;
+import com.Springboot.aha.Repository.ICategoryRepository;
 import com.Springboot.aha.Repository.IItemRepository;
 import com.Springboot.aha.Repository.IUserRepository;
 import com.Springboot.aha.Service.IItemService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +20,7 @@ import java.util.List;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class ItemService implements IItemService {
 
     @Autowired
@@ -24,6 +29,8 @@ public class ItemService implements IItemService {
     @Autowired
     private IUserRepository accountRepository;
 
+    @Autowired
+    private ICategoryRepository categoryRepository;
 
     @Override
     public Item save(Item item) {
@@ -40,16 +47,18 @@ public class ItemService implements IItemService {
                 old.setPrice(newItem.getPrice());
             return itemRepository.save(old);
         }
-        return null;
+        else throw new RuntimeException("Item not found!");
     }
 
     @Override
-    public Item remove(Item iTem) {
+    public Item remove(Item item) {
+
         try {
-            itemRepository.delete(iTem);
-            return iTem;
+            itemRepository.delete(item);
+            return item;
         } catch (Exception e) {
-            return null;
+            log.error(e.getMessage());
+            throw new InternalException("Can not delete item!");
         }
     }
 
@@ -64,23 +73,28 @@ public class ItemService implements IItemService {
         try {
             return itemRepository.findById(id).get();
         } catch (Exception e) {
-
-            return null;
+            log.error(e.getMessage());
+            throw new RuntimeException("Item not found!");
         }
     }
 
     @Override
-    public List<Item> findByAccount(int id) {
+    public List<Item> findByAccountID(int id) {
         if (accountRepository.existsById(id)) {
             User account = accountRepository.findById(id).get();
             return itemRepository.findByUser(account);
         } else
-            return null;
+              throw new RuntimeException("Item not found!");
     }
 
     @Override
-    public List<Item> findItemByCategory(Category category) {
-        return itemRepository.findAllByCategory(category);
+    public List<Item> findItemByCategory(int categoryID) {
+        try {
+            Category category = categoryRepository.findById(categoryID);
+            return itemRepository.findAllByCategory(category);
+        }catch (Exception e) {
+            throw new InternalException("Can not find Item!");
+        }
     }
 
     @Override

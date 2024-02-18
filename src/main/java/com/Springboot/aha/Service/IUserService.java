@@ -12,7 +12,9 @@ public interface IUserService {
 
     User save(User item);
 
-    User update(User item);
+    User update(User item) throws Exception;
+
+    User changePassword(int id, String newPassword);
 
     int delete(int id);
 

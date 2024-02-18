@@ -4,9 +4,11 @@ import com.Springboot.aha.DTO.MessageResponse;
 import com.Springboot.aha.Entity.Category;
 import com.Springboot.aha.Entity.Item;
 import com.Springboot.aha.Exception.BindingResultException.BindingResultException;
+import com.Springboot.aha.Exception.User.PermissionDeniedException;
 import com.Springboot.aha.Security.JwtUtils;
 import com.Springboot.aha.Service.IItemService;
 import com.Springboot.aha.Service.IUserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @CrossOrigin
 @RestController
 @RequestMapping("/api/user/items")
+@Slf4j
 public class ItemAPI {
 
     @Autowired
@@ -35,15 +38,15 @@ public class ItemAPI {
 
     /* Get token from resquest for authentication */
     private String getAuthToken(HttpServletRequest request) {
-        String authorizationHeader = request.getHeader(AUTHORIZATION);
-        return authorizationHeader.substring(JwtUtils.Bearer.length());
+            String authorizationHeader = request.getHeader(AUTHORIZATION);
+            return authorizationHeader.substring(JwtUtils.Bearer.length());
     }
 
     @PostMapping(value = "/add")
     public ResponseEntity<?> createItem(HttpServletRequest request, @Valid @RequestBody Item model, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             String errors = BindingResultException.getErrorMessage(bindingResult);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse(errors.toString()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse(errors));
         } else {
             String token = getAuthToken(request);
             int authUserId = jwtUtils.getId(token);
@@ -54,11 +57,9 @@ public class ItemAPI {
 
     @GetMapping("/get")
     public List<Item> getItems(HttpServletRequest request) {
-
-//        String token = getAuthToken(request);
-//        int authUserId = jwtUtils.getId(token);
-//        return itemService.findByAccount(authUserId);
-        return itemService.findAll();
+            String token = getAuthToken(request);
+            int authUserId = jwtUtils.getId(token);
+            return itemService.findByAccountID(authUserId);
     }
 
     @PutMapping(value = "/update/{id}")
@@ -71,20 +72,16 @@ public class ItemAPI {
     public ResponseEntity<?> deleteItem(@PathVariable("id") int id, HttpServletRequest request) {
         Item item = itemService.findById(id);
         // NOT DELETE ****** this for authenticattion  ******
-//        int authUserId = jwtUtils.getId(getAuthToken(request));
-//        if(item.getUser().getUser_id()!=authUserId)
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("unauthorized"));
-
-        return ResponseEntity.ok(itemService.remove(item));
+        int authUserId = jwtUtils.getId(getAuthToken(request));
+        if(item.getUser().getUser_id()!=authUserId)
+            throw new PermissionDeniedException("Unauthorized!");
+        else
+            return ResponseEntity.ok(itemService.remove(item));
     }
 
-    @GetMapping("/getByAccId")
-    public List<Item> getItemsByAccountId(@RequestParam("id") int id) {
-        return itemService.findByAccount(id);
-    }
 
-    @GetMapping("/getByCate")
-    public List<Item> getItemsByCate(@RequestBody Category category) {
+    @GetMapping("/get-by-category")
+    public List<Item> getItemsByCate(@RequestParam int category) {
         return itemService.findItemByCategory(category);
     }
 

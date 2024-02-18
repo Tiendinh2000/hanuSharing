@@ -5,7 +5,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import io.jsonwebtoken.Jwts;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
@@ -25,16 +25,6 @@ public class JwtUtils {
     @Value("${aha.app.secretKey}")
     private String secretKey;
 
-    public boolean validToken(String token) {
-        try {
-            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
-            return true;
-        } catch (Exception e) {
-            log.error("invalid token");
-            return false;
-        }
-    }
-
     public  Map<String, Object> generateToken(UserDetailsImpl userDetails) {
         Map<String, Object> claims = new HashMap<>();
         Map<String, Object> tokenResponse = new HashMap<>();
@@ -44,7 +34,7 @@ public class JwtUtils {
     }
 
     private String createToken(Map<String, Object> claims, String subject, UserDetailsImpl user) {
-        Algorithm algorithm = algorithm(secretKey);
+        Algorithm algorithm = this.algorithm(secretKey);
         return JWT.create()
                 .withSubject(subject)
                 .withExpiresAt(new Date(System.currentTimeMillis() + expiredTime))
@@ -55,13 +45,8 @@ public class JwtUtils {
 
     }
 
-    public String getUserNameFromToken(String token) {
-        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
-    }
-
-
     private DecodedJWT decodedJWT(String token) {
-        Algorithm algorithm = algorithm(secretKey);
+        Algorithm algorithm = this.algorithm(secretKey);
         JWTVerifier verifier = JWT.require(algorithm).build();
         DecodedJWT decodedJWT = verifier.verify(token);
 

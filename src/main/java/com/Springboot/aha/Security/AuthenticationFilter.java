@@ -1,5 +1,6 @@
 package com.Springboot.aha.Security;
 
+import com.Springboot.aha.Exception.User.UsernameOrPasswordIsInvalidException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,18 +48,13 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         }
 
         String token = authorizationHeader.substring(Bearer.length());
-
         try {
-            if (!jwtUtils.validToken(token)) {
-                throw new RuntimeException("Invalid token");
-            }
-            String username = jwtUtils.getUserName(token);
-            String[] roles = jwtUtils.getRoles(token);
-            UsernamePasswordAuthenticationToken authenticationToken = getUsernamePasswordAuthenticationToken(username, roles);
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-            filterChain.doFilter(request, response);
-
-        } catch (Exception e) {
+                String username = jwtUtils.getUserName(token);
+                String[] roles = jwtUtils.getRoles(token);
+                UsernamePasswordAuthenticationToken authenticationToken = getUsernamePasswordAuthenticationToken(username, roles);
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                filterChain.doFilter(request, response);
+        } catch (RuntimeException e) {
             log.error("Error login {}", e.getMessage());
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);

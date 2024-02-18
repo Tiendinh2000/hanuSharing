@@ -1,6 +1,7 @@
 package com.Springboot.aha.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,7 +33,7 @@ public class Item {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_user"))
-    @JsonIgnoreProperties(value = {"itemList", "password"})
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private User user;
 
     @ManyToOne

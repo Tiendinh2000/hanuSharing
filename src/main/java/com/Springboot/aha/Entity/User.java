@@ -32,7 +32,7 @@ public class User {
     private String username;
 
     @Column(name = "password")
-  //  @Size(min = 3, max =20, message = "password > 2 characters or < 21 characters")
+   // @Size(min = 3, max =20, message = "password > 2 characters or < 21 characters")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 

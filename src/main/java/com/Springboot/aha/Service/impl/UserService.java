@@ -2,6 +2,7 @@ package com.Springboot.aha.Service.impl;
 
 import com.Springboot.aha.Entity.Role;
 import com.Springboot.aha.Entity.User;
+import com.Springboot.aha.Exception.User.InternalException;
 import com.Springboot.aha.Exception.User.UsernameIsNotUniqueException;
 import com.Springboot.aha.Repository.IRoleRepository;
 import com.Springboot.aha.Repository.IUserRepository;
@@ -46,7 +47,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public User update(User newAccount) {
+    public User update(User newAccount)  {
 
         if (userRepository.existsById(newAccount.getUser_id())) {
             User old = userRepository.findById(newAccount.getUser_id()).get();
@@ -60,7 +61,19 @@ public class UserService implements IUserService {
                 old.setPassword(encoder.encode(newAccount.getPassword()));
             return userRepository.save(old);
         } else
-            return null;
+            throw new InternalException("An internal error has occurred, please try again");
+    }
+
+    @Override
+    public User changePassword(int id, String newPassword) {
+        try {
+            User old = userRepository.findById(id).get();
+            old.setPassword(encoder.encode(newPassword));
+            return userRepository.save(old);
+        }catch (Exception e){
+            log.error(e.getMessage());
+            throw new InternalException("An internal error has occurred, please try again");
+        }
     }
 
     @Override

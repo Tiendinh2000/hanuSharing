@@ -5,6 +5,7 @@ import com.Springboot.aha.Entity.User;
 import com.Springboot.aha.Exception.BindingResultException.BindingResultException;
 import com.Springboot.aha.Security.JwtUtils;
 import com.Springboot.aha.Service.IUserService;
+import io.swagger.annotations.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,11 +52,10 @@ public class AccountAPI {
         } else {
             try {
                 int userId = jwtUtils.getId(token);
-                model.setUser_id(userId);
-                userService.update(model);
-                return ResponseEntity.ok(new MessageResponse("change successfully!"));
+                userService.changePassword(userId, model.getPassword());
+                return ResponseEntity.ok(new MessageResponse("change password successfully!"));
             } catch (Exception e) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse(" bad request"));
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse(e.getMessage()));
             }
         }
 
@@ -72,30 +72,29 @@ public class AccountAPI {
                 int userId = jwtUtils.getId(token);
                 model.setUser_id(userId);
                 userService.update(model);
-                return ResponseEntity.ok(new MessageResponse("change successfully!"));
+                return ResponseEntity.ok(new MessageResponse("change username successfully!"));
             } catch (Exception e) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse(" bad request"));
             }
         }
 
     }
-
-    @PutMapping(value = "/change-phone-number")
-    public ResponseEntity<?> changePhoneNumber(@Valid @RequestBody User model, HttpServletRequest request) {
-
-        String token;
-        if ((token = getAuthToken(request)) == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("You are not signed in!"));
-        } else {
-            try {
-                int userId = jwtUtils.getId(token);
-                model.setUser_id(userId);
-                userService.update(model);
-                return ResponseEntity.ok(new MessageResponse("change successfully!"));
-            } catch (Exception e) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse(" bad request"));
-            }
-        }
-
-    }
+//    @PutMapping(value = "/change-phone-number")
+//    public ResponseEntity<?> changePhoneNumber(@Valid @RequestBody User model, HttpServletRequest request) {
+//
+//        String token;
+//        if ((token = getAuthToken(request)) == null) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("You are not signed in!"));
+//        } else {
+//            try {
+//                int userId = jwtUtils.getId(token);
+//                model.setUser_id(userId);
+//                userService.update(model);
+//                return ResponseEntity.ok(new MessageResponse("change successfully!"));
+//            } catch (Exception e) {
+//                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse(" bad request"));
+//            }
+//        }
+//
+//    }
 }

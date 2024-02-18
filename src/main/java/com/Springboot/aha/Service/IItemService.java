@@ -12,15 +12,15 @@ public interface IItemService {
 
     Item update(Item item);
 
-    Item remove(Item iTem);
+    Item remove(Item item);
 
     List<Item> findAll();
 
     Item findById(int id);
 
-    List<Item> findByAccount(int id);
+    List<Item> findByAccountID(int id);
 
-    List<Item> findItemByCategory(Category category);
+    List<Item> findItemByCategory(int category);
 
     List<Item> findByPrice(int price);
 }
