@@ -1,10 +1,11 @@
 package com.Springboot.aha.Security;
 
-import com.Springboot.aha.Exception.User.InvalidUsernameOrPasswordException;
-import com.Springboot.aha.Exception.User.UnauthorizedException;
+import com.Springboot.aha.Exception.User.UsernameOrPasswordIsInvalidException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,7 +18,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 
-import static com.Springboot.aha.Security.PublicURL.*;
 import static java.util.Arrays.stream;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
@@ -28,51 +28,57 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private JwtUtils jwtUtils;
 
+
     private final String Bearer = "Bearer ";
 
-    private List<String> publicUrl = new ArrayList(Arrays.asList(
-            SIGNUP,
-            SIGNIN,
-            UPLOADFILE,
-            DELETEFILE
-            ));
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException, UnauthorizedException {
-        if (publicUrl.contains(request.getServletPath())) {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
+        String authorizationHeader = request.getHeader(AUTHORIZATION);
+
+        if (request.getServletPath().equals("/auth/signin") || request.getServletPath().equals("/auth/signup") || isSwaggerResource(request.getServletPath())) {
             filterChain.doFilter(request, response);
-        } else {
-            try {
-                String authorizationHeader = request.getHeader(AUTHORIZATION);
-                String token = authorizationHeader.substring(Bearer.length());
-                if (authorizationHeader.startsWith(Bearer) && !jwtUtils.validToken(token)) {
-                    String username = jwtUtils.getUserName(token);
-                    String[] roles = jwtUtils.getRoles(token);
-                    int id = jwtUtils.getId(token);
-
-                    UsernamePasswordAuthenticationToken authenticationToken = getUsernamePasswordAuthenticationToken(username, roles);
-                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                    filterChain.doFilter(request, response);
-
-                } else {
-                   throw new InvalidUsernameOrPasswordException("invalid token");
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                response.setStatus(FORBIDDEN.value());
-                response.setHeader("error", e.getMessage());
-                Map<String, String> errorToken = new HashMap<>();
-                errorToken.put("error_token", e.getMessage());
-                response.setContentType(APPLICATION_JSON_VALUE);
-                new ObjectMapper().writeValue(response.getOutputStream(), errorToken);
-            }
-
-
+            return;
         }
 
+        if (authorizationHeader == null || !authorizationHeader.startsWith(Bearer)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String token = authorizationHeader.substring(Bearer.length());
+        try {
+                String username = jwtUtils.getUserName(token);
+                String[] roles = jwtUtils.getRoles(token);
+                UsernamePasswordAuthenticationToken authenticationToken = getUsernamePasswordAuthenticationToken(username, roles);
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                filterChain.doFilter(request, response);
+        } catch (RuntimeException e) {
+            log.error("Error login {}", e.getMessage());
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.writeValue(response.getOutputStream(), errorResponse);
+        }
+    }
+
+
+    private boolean isSwaggerResource(String URL) {
+        String[] patterns = {"/v2/api-docs", "/configuration/ui", "/swagger-resources","/swagger-resources/.*", "/configuration/security", "/swagger-ui.html", "/swagger-ui.*", "/webjars/.*", "/swagger/.*","/null/swagger-resources/.*", "/csrf"};
+
+        for (String pattern : patterns) {
+            if (URL.matches(pattern)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private UsernamePasswordAuthenticationToken getUsernamePasswordAuthenticationToken(String username, String[] roles) {
+
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
         stream(roles).forEach(role -> {
             authorities.add(new SimpleGrantedAuthority(role));

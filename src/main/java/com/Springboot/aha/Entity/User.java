@@ -1,7 +1,9 @@
 package com.Springboot.aha.Entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -17,7 +19,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@Table(name = "user")
+@Table(name = "user", indexes = {
+        @Index(name = "idx_user_username_unq", columnList = "username", unique = true)
+})
 @Builder
 public class User {
 
@@ -26,11 +30,12 @@ public class User {
     private int user_id;
 
     @Column(name = "username", unique = true)
-    @Size(min = 3, message = "username >3 characters")
+    @Size(min = 3, max = 20, message = "username > 2 characters or < 21 characters")
     private String username;
 
     @Column(name = "password")
-    @Size(min = 3, message = "password >3 characters")
+   // @Size(min = 3, max =20, message = "password > 2 characters or < 21 characters")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     @OneToMany(mappedBy = "user")
@@ -38,9 +43,7 @@ public class User {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Item> itemList;
 
-
     @ManyToMany(fetch = FetchType.LAZY)
     private Collection<Role> roles = new ArrayList<>();
-
 
 }

@@ -1,7 +1,5 @@
 package com.Springboot.aha.Security;
 
-import com.Springboot.aha.Exception.User.InvalidUsernameOrPasswordException;
-import com.Springboot.aha.Exception.User.UnauthorizedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -17,10 +15,8 @@ import java.io.IOException;
 public class AuthEntryPoint implements AuthenticationEntryPoint {
 
     @Override
-    public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e)throws IOException, ServletException  {
-        log.error("unauthorized"+e.getMessage());
-        httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid Credential!!!");
+    public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
+        log.error("unauthorized");
+        httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
     }
-
-
 }

@@ -1,13 +1,13 @@
 package com.Springboot.aha.Exception;
 
-import com.Springboot.aha.Exception.common.BadRequestException;
-import com.Springboot.aha.Exception.User.InvalidUsernameOrPasswordException;
-import com.Springboot.aha.Exception.User.UnauthorizedException;
+import com.Springboot.aha.Exception.User.PermissionDeniedException;
+import com.Springboot.aha.Exception.User.UsernameOrPasswordIsInvalidException;
 import com.Springboot.aha.Exception.User.UsernameIsNotUniqueException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -37,33 +37,38 @@ public class ApiExceptionHandler {
         return new ResponseEntity<>(apiException, badRequest);
     }
 
-    @ExceptionHandler(value = {InvalidUsernameOrPasswordException.class})
-    public ResponseEntity<Object> handleUsernameIsInvalidExceptionn(InvalidUsernameOrPasswordException e) {
+    @ResponseStatus
+    @ExceptionHandler(value = {UsernameOrPasswordIsInvalidException.class})
+    public ResponseEntity<Object> handleUsernameIsInvalidExceptionn(UsernameOrPasswordIsInvalidException e) {
+
         // create payload exception
         ApiException apiException = new ApiException(e.getMessage(),
-                HttpStatus.OK,
-                ZonedDateTime.now(ZoneId.of("Z")));
+                badRequest,
+                ZonedDateTime.now(ZoneId.of("")));
         // return response
-        return new ResponseEntity<>(apiException,HttpStatus.OK);
+        return new ResponseEntity<>(apiException, badRequest);
     }
 
-    @ExceptionHandler(value = {UnauthorizedException.class})
-    public ResponseEntity<Object> handleUnAuthorizedException(UnauthorizedException e) {
+    @ExceptionHandler(value = {RuntimeException.class})
+    public ResponseEntity<Object> globalException(RuntimeException e) {
+
         // create payload exception
         ApiException apiException = new ApiException(e.getMessage(),
-                HttpStatus.UNAUTHORIZED,
+                badRequest,
                 ZonedDateTime.now(ZoneId.of("Z")));
         // return response
-        return new ResponseEntity<>(apiException,HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(apiException, badRequest);
     }
 
-    @ExceptionHandler(value = {BadRequestException.class})
-    public ResponseEntity<Object> handleBadRequestException(BadRequestException e) {
+
+    @ExceptionHandler(value = {PermissionDeniedException.class})
+    public ResponseEntity<Object> globalException(PermissionDeniedException e) {
+
         // create payload exception
         ApiException apiException = new ApiException(e.getMessage(),
-                HttpStatus.BAD_REQUEST,
+                badRequest,
                 ZonedDateTime.now(ZoneId.of("Z")));
         // return response
-        return new ResponseEntity<>(apiException,HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(apiException, badRequest);
     }
 }

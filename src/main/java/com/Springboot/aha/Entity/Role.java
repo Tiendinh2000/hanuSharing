@@ -1,7 +1,10 @@
 package com.Springboot.aha.Entity;
 
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 
@@ -15,14 +18,23 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(name="name",nullable =false)
     @Enumerated(EnumType.STRING)
     private ERole name;
 
-    public static Role getUserRole(){
-        return new Role(2,ERole.ROLE_USER);
+    public void setId(int id) {
+        this.id = id;
     }
 
-    public static Role getAdminRole(){
-        return new Role(1,ERole.ROLE_ADMIN);
+    public void setName(ERole name) {
+        this.name = name;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public ERole getName() {
+        return name;
     }
 }

@@ -1,4 +1,4 @@
-package com.Springboot.aha.API;
+package com.Springboot.aha.API.Admin;
 
 import com.Springboot.aha.DTO.MessageResponse;
 import com.Springboot.aha.Entity.User;
@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api/user")
-public class UserAPI {
+@RequestMapping("/api/admin/account")
+public class AccountControllerAPI {
 
     @Autowired
     private IItemService itemService;
@@ -71,6 +71,5 @@ public class UserAPI {
             return new ResponseEntity<Integer>(HttpStatus.BAD_REQUEST);
 
     }
-
 
 }

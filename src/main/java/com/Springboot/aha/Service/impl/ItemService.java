@@ -3,25 +3,24 @@ package com.Springboot.aha.Service.impl;
 import com.Springboot.aha.Entity.Category;
 import com.Springboot.aha.Entity.Item;
 import com.Springboot.aha.Entity.User;
-import com.Springboot.aha.Exception.common.BadRequestException;
-import com.Springboot.aha.Exception.User.UnauthorizedException;
+import com.Springboot.aha.Exception.User.InternalException;
+import com.Springboot.aha.Exception.User.PermissionDeniedException;
+import com.Springboot.aha.Repository.ICategoryRepository;
 import com.Springboot.aha.Repository.IItemRepository;
 import com.Springboot.aha.Repository.IUserRepository;
-import com.Springboot.aha.Security.JwtUtils;
 import com.Springboot.aha.Service.IItemService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class ItemService implements IItemService {
 
     @Autowired
@@ -31,48 +30,35 @@ public class ItemService implements IItemService {
     private IUserRepository accountRepository;
 
     @Autowired
-    private JwtUtils jwtUtils;
+    private ICategoryRepository categoryRepository;
 
     @Override
     public Item save(Item item) {
         return itemRepository.save(item);
     }
 
-    /* Get token from resquest for authentication */
-    private String getAuthToken(HttpServletRequest request) {
-        String authorizationHeader = request.getHeader(AUTHORIZATION);
-        return authorizationHeader.substring(JwtUtils.Bearer.length());
-    }
-
     @Override
-    public Item update(Item newItem, int id, HttpServletRequest request) {
-        int authUserId = jwtUtils.getId(getAuthToken(request));
-        if (itemRepository.existsById(id)) {
-            Item edittingItem = itemRepository.findById(id).get();
-            if (edittingItem.getUser().getUser_id() != authUserId)
-                throw new UnauthorizedException("you're just permitted edit your own items");
+    public Item update(Item newItem) {
+        if (itemRepository.existsById(newItem.getItem_id())) {
+            Item old = itemRepository.findById(newItem.getItem_id()).get();
             if (newItem.getName() != null)
-                edittingItem.setName(newItem.getName());
-            if (newItem.getPrice() != edittingItem.getPrice())
-                edittingItem.setPrice(newItem.getPrice());
-            return itemRepository.save(edittingItem);
+                old.setName(newItem.getName());
+            if (newItem.getPrice() != old.getPrice())
+                old.setPrice(newItem.getPrice());
+            return itemRepository.save(old);
         }
-        throw new BadRequestException("Bad Request");
+        else throw new RuntimeException("Item not found!");
     }
 
     @Override
-    public Item remove(int itemId, HttpServletRequest request) {
-        int authUserId = jwtUtils.getId(getAuthToken(request));
+    public Item remove(Item item) {
+
         try {
-            Item item = itemRepository.findById(itemId).get();
-            if (item.getUser().getUser_id() != authUserId) {
-                throw new UnauthorizedException("you're just permitted delete your own items");
-            } else {
-                itemRepository.delete(item);
-                return item;
-            }
+            itemRepository.delete(item);
+            return item;
         } catch (Exception e) {
-            throw new BadRequestException("Bad Request!!");
+            log.error(e.getMessage());
+            throw new InternalException("Can not delete item!");
         }
     }
 
@@ -87,23 +73,28 @@ public class ItemService implements IItemService {
         try {
             return itemRepository.findById(id).get();
         } catch (Exception e) {
-
-            return null;
+            log.error(e.getMessage());
+            throw new RuntimeException("Item not found!");
         }
     }
 
     @Override
-    public List<Item> findByAccount(int id) {
+    public List<Item> findByAccountID(int id) {
         if (accountRepository.existsById(id)) {
             User account = accountRepository.findById(id).get();
             return itemRepository.findByUser(account);
         } else
-            return null;
+              throw new RuntimeException("Item not found!");
     }
 
     @Override
-    public List<Item> findItemByCategory(Category category) {
-        return itemRepository.findAllByCategory(category);
+    public List<Item> findItemByCategory(int categoryID) {
+        try {
+            Category category = categoryRepository.findById(categoryID);
+            return itemRepository.findAllByCategory(category);
+        }catch (Exception e) {
+            throw new InternalException("Can not find Item!");
+        }
     }
 
     @Override

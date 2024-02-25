@@ -1,10 +1,9 @@
 package com.Springboot.aha.Service.impl;
 
-import com.Springboot.aha.Entity.ERole;
 import com.Springboot.aha.Entity.Role;
 import com.Springboot.aha.Entity.User;
+import com.Springboot.aha.Exception.User.InternalException;
 import com.Springboot.aha.Exception.User.UsernameIsNotUniqueException;
-import com.Springboot.aha.Exception.common.BadRequestException;
 import com.Springboot.aha.Repository.IRoleRepository;
 import com.Springboot.aha.Repository.IUserRepository;
 import com.Springboot.aha.Service.IUserService;
@@ -17,8 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -43,29 +40,40 @@ public class UserService implements IUserService {
 
         if (usernameIsExisted(user.getUsername())) {
             throw new UsernameIsNotUniqueException("Username has been occupied, please chose another :))");
-        }else{
-        user.setPassword(encoder.encode(user.getPassword()));
-        Collection c =new ArrayList();
-        c.add(Role.getUserRole());
-        user.setRoles(c);
-        return userRepository.save(user);
         }
+        user.setPassword(encoder.encode(user.getPassword()));
+
+        return userRepository.save(user);
     }
 
     @Override
-    public User update(User newAccount) {
+    public User update(User newAccount)  {
 
         if (userRepository.existsById(newAccount.getUser_id())) {
             User old = userRepository.findById(newAccount.getUser_id()).get();
-            if (newAccount.getUsername() != null)
+            if (newAccount.getUsername() != null) {
+                if (usernameIsExisted(newAccount.getUsername())) {
+                    throw new UsernameIsNotUniqueException("Username has been occupied, please chose another :))");
+                }
                 old.setUsername(newAccount.getUsername());
+            }
             if (newAccount.getPassword() != null)
                 old.setPassword(encoder.encode(newAccount.getPassword()));
             return userRepository.save(old);
-        } else{
-            return null;
-        }
+        } else
+            throw new InternalException("An internal error has occurred, please try again");
+    }
 
+    @Override
+    public User changePassword(int id, String newPassword) {
+        try {
+            User old = userRepository.findById(id).get();
+            old.setPassword(encoder.encode(newPassword));
+            return userRepository.save(old);
+        }catch (Exception e){
+            log.error(e.getMessage());
+            throw new InternalException("An internal error has occurred, please try again");
+        }
     }
 
     @Override
